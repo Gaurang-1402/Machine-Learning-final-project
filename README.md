@@ -26,19 +26,30 @@ may be applied.
 
 The following are some links you can search for a dataset. Feel free to use any other
 datasets or make your own:
+
 • https://vision.eng.au.dk/plant-seedlings-dataset/
+
 • https://www.kaggle.com/competitions
+
 • https://www.openml.org/
+
 • https://paperswithcode.com/datasets
+
 • https://registry.opendata.aws/
+
 ∗The projects will be due the evening before the first presentations are given. The date the project will
 be due depends on the number of presentations.
 
 • https://opendatamonitor.eu/frontend/web/index.php?r=dashboard
+
 • https://dataportals.org/
+
 • https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research
+
 • https://www.reddit.com/r/datasets/
+
 • https://www.quora.com/Where-can-I-find-large-datasets-open-to-the-public
+
 Please enter on Brightspace a link to the data set you will use and who your partner is
 by March 26th.
 
@@ -85,11 +96,15 @@ Practical advice can be found in chapters 1 and 2 of Hands-On Machine Learning w
 Scikit-Learn, Keras & TensorFlow, and in http://cs229.stanford.edu/notes2020fall/
 notes2020fall/CS229_ML%20advice_presented-slides.pdf Please Google appropriate
 topics. A quick first glance at some of these topics can be found here:
+
 • Dealing with unbalanced datasets: https://www.svds.com/tbt-learning-imbalanced-classes
+
 • Preparing your dataset: pages 62-69 Hands-On Machine Learning with Scikit-Learn,
 Keras & TensorFlow
+
 • Working with time series: https://www.itl.nist.gov/div898/handbook/pmc/section4/
 pmc4.htm and search for time series
+
 • Handling the missing features in the training set: see lecture 16 in https://web.
 stanford.edu/~lmackey/stats306b/ https://machinelearningmastery.com/handle-missing-data-python/
 and https://machinelearningmastery.com/statistical-imputation-for-missing-values-in-machine-learning/
