@@ -1,6 +1,6 @@
-Final Project
+# Final Project
 
-CS-UY 4563 - Introduction to Machine Learning
+## CS-UY 4563 - Introduction to Machine Learning
 
 Spring 2023
 Due Date: To Be Announced∗
@@ -10,14 +10,20 @@ the machine learning algorithms and techniques you learned in class to a task/pr
 your choosing. You and your partner will present your project to the class at the end of
 the semester.
 You and your partner need to submit the following documents to Gradescope.
+
 • Your presentation slides
+
 • Your project write-up as a PDF
+
 • Your project code (GitHub link is ok)
+
 • Your dataset - if you made one from scratch
+
 Please note that we will be passing your code and write-up through a plagiarism checker.
 We know there are ways to cheat on the final project. If we suspect you of cheating, you
 will receive 0 for your final project grade. See the syllabus for additional penalties that
 may be applied.
+
 The following are some links you can search for a dataset. Feel free to use any other
 datasets or make your own:
 • https://vision.eng.au.dk/plant-seedlings-dataset/
