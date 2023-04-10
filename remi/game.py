@@ -2,6 +2,7 @@ import random
 from typing import Callable
 from typing import Tuple
 import numpy as np
+from game_svm import EvalBoardSVM
 
 class Board:
     def __init__(self, board:'Board'=None):
@@ -69,26 +70,28 @@ def EvalBoard(board: Board, player: int, evalFunc: Callable[[Board], int], depth
     # base case
     if depth == 1:
         possibleMoves = [MakeMove(board, i, player) for i in range(7)]
+        possibleMoves = [move for move in possibleMoves if move.valid]
         evaluations = [evalFunc(move) for move in possibleMoves]
-        winningMoves = [i for i in range(7) if evaluations[i] == player]
+        winningMoves = [i for i in range(len(evaluations)) if evaluations[i] == player]
         if len(winningMoves) != 0:
             return (random.choice(winningMoves), player)
-        neutralMoves = [i for i in range(7) if evaluations[i] == 0]
+        neutralMoves = [i for i in range(len(evaluations)) if evaluations[i] == 0]
         if len(neutralMoves) != 0:
             return (random.choice(neutralMoves), 0)
-        losingMoves = [i for i in range(7) if evaluations[i] == -player]
+        losingMoves = [i for i in range(len(evaluations)) if evaluations[i] == -player]
         return (random.choice(losingMoves), -player)
     
     # recursive case
     possibleMoves = [MakeMove(board, i, player) for i in range(7)]
+    possibleMoves = [move for move in possibleMoves if move.valid]
     evaluations = [EvalBoard(move, -player, evalFunc, depth-1) for move in possibleMoves]
-    winningMoves = [i for i in range(7) if evaluations[i][1] == player]
+    winningMoves = [i for i in range(len(evaluations)) if evaluations[i][1] == player]
     if len(winningMoves) != 0:
         return (random.choice(winningMoves), player)
-    neutralMoves = [i for i in range(7) if evaluations[i][1] == 0]
+    neutralMoves = [i for i in range(len(evaluations)) if evaluations[i][1] == 0]
     if len(neutralMoves) != 0:
         return (random.choice(neutralMoves), 0)
-    losingMoves = [i for i in range(7) if evaluations[i][1] == -player]
+    losingMoves = [i for i in range(len(evaluations)) if evaluations[i][1] == -player]
     return (random.choice(losingMoves), -player)
 
 def PlayPlayerVersusPlayer():
@@ -123,7 +126,7 @@ def PlayPlayerVersusAI(aiEvalFunc: Callable[[Board], int], aiDepth:int=1):
     board = Board()
     player = 1
     while True:
-        if player == 1:
+        if player == -1:
             print()
             PrintBoard(board)
             print("Player", player, "turn")
@@ -155,7 +158,60 @@ def PlayPlayerVersusAI(aiEvalFunc: Callable[[Board], int], aiDepth:int=1):
             break
         player = -player
 
+def PlayAIVersusAI(aiEvalFunc1: Callable[[Board], int], aiEvalFunc2: Callable[[Board], int], aiDepth1:int=1, aiDepth2:int=1):
+    board = Board()
+    player = 1
+    while True:
+        eval = aiEvalFunc1
+        if player == -1:
+            eval = aiEvalFunc2
+        move = EvalBoard(board, player, eval, aiDepth2)[0]
+        newBoard = MakeMove(board, move, player)
+        if not newBoard.valid:
+            print("AI made an invalid move")
+            break
+        board = newBoard
+        winner = FindWinner(board)
+        if winner != 0:
+            print()
+            PrintBoard(board)
+            print("Player", winner, "wins!")
+            return winner
+        player = -player
+    return 0
+
+## same function as above but with print statements removed
+def PlayAIVersusAISilent(aiEvalFunc1: Callable[[Board], int], aiEvalFunc2: Callable[[Board], int], aiDepth1:int=1, aiDepth2:int=1):
+    board = Board()
+    player = 1
+    while True:
+        eval = aiEvalFunc1
+        if player == -1:
+            eval = aiEvalFunc2
+        move = EvalBoard(board, player, eval, aiDepth2)[0]
+        newBoard = MakeMove(board, move, player)
+        if not newBoard.valid:
+            return -1
+        board = newBoard
+        winner = FindWinner(board)
+        if winner != 0:
+            return winner
+        player = -player
+    return 0
+
 def EvalBoardRandom(board: Board) -> int:
     return random.randint(-1, 1)
 
-PlayPlayerVersusAI(EvalBoardRandom, aiDepth=1)
+def TestEvals(evalFunc1: Callable[[Board], int], evalFunc2: Callable[[Board], int], numGames:int=1000, aiDepth1:int=1, aiDepth2:int=1):
+    wins = [0, 0, 0]
+    for i in range(numGames):
+        if i % 10 == 0:
+            print(i, "games played")
+        winner = PlayAIVersusAISilent(evalFunc1, evalFunc2, aiDepth1, aiDepth2)
+        wins[winner+1] += 1
+    print("Player 1 wins:", wins[2])
+    print("Player 2 wins:", wins[0])
+    print("Ties:", wins[1])
+
+#TestEvals(EvalBoardSVM, EvalBoardRandom, 100, 3, 3)
+PlayPlayerVersusAI(EvalBoardSVM, 3)
