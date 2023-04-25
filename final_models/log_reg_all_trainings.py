@@ -132,9 +132,10 @@ def logistic_regression_train_val(num_iterations, feature_degree, lambd, regular
     # Create the 3 classifiers
     labels = "012"
     w_vals = {}
+    w_trains = {}
     val_scores = {}
     confusion_matrices = {}
-
+    train_scores = {}
     for i in range(len(labels)):
 
         # Perform one-vs-rest for labels[i]
@@ -142,6 +143,7 @@ def logistic_regression_train_val(num_iterations, feature_degree, lambd, regular
 
         poly = PolynomialFeatures(feature_degree) # * generate all types of polynomial features up to degree d
         X_tr_poly = poly.fit_transform(X_train) # * transforms the training data to have those polynomial features
+        
         
         if regularization == 'l1':
             if lambd > 0:
@@ -157,6 +159,10 @@ def logistic_regression_train_val(num_iterations, feature_degree, lambd, regular
         logreg.fit(X_tr_poly, y_encoded) # ! Train
             
         w_vals[i] = logreg.coef_
+        
+        w_trains[i] = logreg.coef_
+        
+        train_scores[i] = accuracy_score(y_encoded, logreg.predict(X_tr_poly))
 
         X_val_poly = poly.transform(X_val) # * transforms the validation data to have those polynomial features
 
@@ -174,12 +180,37 @@ def logistic_regression_train_val(num_iterations, feature_degree, lambd, regular
         val_scores[i] = val_accuracy
 
     for i in range(len(labels)):
-        print("Model", i, "{:.2%}".format( val_scores[i]))
-
+         print("Validation set Model", i, "{:.2%}".format( val_scores[i]))
+        
     # We will create a numpy array of length N, where N is the number of examples in the validation set. 
     # `combined_model_evaluation_1` will hold either a 1 or a 0, depending on whether the handwritten digit was predicted correctly or not.
-    combined_model_evaluation_1 = np.zeros(len(y_val))
+    combined_model_evaluation_1 = np.zeros(len(y_train))
 
+    y_predict_train = np.zeros(len(y_train))
+    
+# Loop through each sample in the validation set and assign it a label based on the highest score. 
+    # Store either a 1 if the number was predicted correctly, or a 0 if the number was predicted incorrectly.
+    for i in range(len(X_train)):
+        
+        label_scores = np.zeros(len(labels))
+        
+        for j in range(len(labels)):
+            X_train_i_2d = X_tr_poly[i].reshape(1, -1)  # Reshape X_train to a 2D array with shape (1, 43).
+            label_scores[j] = X_train_i_2d @ w_trains[j].T  # Compute the score for each label.
+        
+        index_label_max_score = np.argmax(label_scores) # Get the index of the label with the highest score.
+        y_predict_train[i] = labels[index_label_max_score]  # Assign the predicted label to `y_predict_val`.
+        if int(labels[index_label_max_score]) == int(y_train[i]):  # Check if the prediction is correct.
+            combined_model_evaluation_1[i] = 1  # If the prediction is correct, assign 1 to `combined_model_evaluation_1`.
+        else:
+            combined_model_evaluation_1[i] = 0  # If the prediction is incorrect, assign 0 to `combined_model_evaluation_1`.
+
+    # Print the accuracy score as a percentage
+    accuracy_train = np.sum(combined_model_evaluation_1) / len(y_train)
+    print("Final model accuracy score on train set: {:.2%}".format(accuracy_train))
+
+
+    combined_model_evaluation_2 = np.zeros(len(y_val))
     y_predict_val = np.zeros(len(y_val))
 
     # Loop through each sample in the validation set and assign it a label based on the highest score. 
@@ -195,14 +226,14 @@ def logistic_regression_train_val(num_iterations, feature_degree, lambd, regular
         index_label_max_score = np.argmax(label_scores) # Get the index of the label with the highest score.
         y_predict_val[i] = labels[index_label_max_score]  # Assign the predicted label to `y_predict_val`.
         if int(labels[index_label_max_score]) == int(y_val[i]):  # Check if the prediction is correct.
-            combined_model_evaluation_1[i] = 1  # If the prediction is correct, assign 1 to `combined_model_evaluation_1`.
+            combined_model_evaluation_2[i] = 1  # If the prediction is correct, assign 1 to `combined_model_evaluation_1`.
         else:
-            combined_model_evaluation_1[i] = 0  # If the prediction is incorrect, assign 0 to `combined_model_evaluation_1`.
+            combined_model_evaluation_2[i] = 0  # If the prediction is incorrect, assign 0 to `combined_model_evaluation_1`.
 
     # Print the accuracy score as a percentage
-    accuracy = np.sum(combined_model_evaluation_1) / len(y_val)
-    print("Final model accuracy score on validation set: {:.2%}".format(accuracy))
-    return accuracy
+    accuracy_val = np.sum(combined_model_evaluation_2) / len(y_val)
+    print("Final model accuracy score on validation set: {:.2%}".format(accuracy_val))
+    return accuracy_train, accuracy_val
 
 def logistic_regression_train_test(num_iterations, feature_degree, lambd, regularization):
     # Create the 3 classifiers
@@ -256,7 +287,7 @@ def logistic_regression_train_test(num_iterations, feature_degree, lambd, regula
 
     # We will create a numpy array of length N, where N is the number of examples in the validation set. 
     # `combined_model_evaluation_1` will hold either a 1 or a 0, depending on whether the handwritten digit was predicted correctly or not.
-    combined_model_evaluation_2 = np.zeros(len(y_test))
+    combined_model_evaluation_3 = np.zeros(len(y_test))
 
     y_predict_test = np.zeros(len(y_test))
 
@@ -273,22 +304,45 @@ def logistic_regression_train_test(num_iterations, feature_degree, lambd, regula
         index_label_max_score = np.argmax(label_scores) # Get the index of the label with the highest score.
         y_predict_test[i] = labels[index_label_max_score]  # Assign the predicted label to `y_predict_test`.
         if int(labels[index_label_max_score]) == int(y_test[i]):  # Check if the prediction is correct.
-            combined_model_evaluation_2[i] = 1  # If the prediction is correct, assign 1 to `combined_model_evaluation_1`.
+            combined_model_evaluation_3[i] = 1  # If the prediction is correct, assign 1 to `combined_model_evaluation_1`.
         else:
-            combined_model_evaluation_2[i] = 0  # If the prediction is incorrect, assign 0 to `combined_model_evaluation_1`.
+            combined_model_evaluation_3[i] = 0  # If the prediction is incorrect, assign 0 to `combined_model_evaluation_1`.
 
     # Print the accuracy score as a percentage
-    accuracy = np.sum(combined_model_evaluation_2) / len(y_test)
+    accuracy = np.sum(combined_model_evaluation_3) / len(y_test)
     print("Final model accuracy score on test set: {:.2%}".format(accuracy))
     return accuracy
 
 
 
 # Define the regularization parameters
+# regularizations = ['l1', 'l2']
+# lambdas = [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+# num_iterations = 100
+# feature_transformation = 1
+
+# # Initialize the accuracy table
+# accuracy_table = np.zeros((6, 9))
+
+# # Populate the accuracy table
+# for j, regularization in enumerate(regularizations):
+#     for k, lambd in enumerate(lambdas):
+#         accuracy_table[j*3, k], accuracy_table[j*3+1, k] = logistic_regression_train_val(num_iterations, feature_transformation, lambd, regularization)  # compute train accuracy
+#         accuracy_table[j*3+2, k] = logistic_regression_train_test(num_iterations, feature_transformation, lambd, regularization)  # compute test accuracy
+
+# print(accuracy_table)
+
+# # Format the accuracy values as strings
+# accuracy_table_str = np.array([['{:.4f}'.format(val) for val in row] for row in accuracy_table])
+
+# print(accuracy_table_str)
+
+
+
 regularizations = ['l1', 'l2']
 lambdas = [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
-num_iterations = 20
-feature_transformation = 1
+num_iterations = 100
+feature_transformation = 3
 
 # Initialize the accuracy table
 accuracy_table = np.zeros((4, 9))
@@ -296,10 +350,8 @@ accuracy_table = np.zeros((4, 9))
 # Populate the accuracy table
 for j, regularization in enumerate(regularizations):
     for k, lambd in enumerate(lambdas):
-        train_func = logistic_regression_train_val if j == 0 else logistic_regression_train_test  # alternate between train_val and train_test
-        
-        accuracy_table[j*2, k] = train_func(num_iterations, feature_transformation, lambd, regularization)  # compute train accuracy
-        accuracy_table[j*2+1, k] = train_func(num_iterations, feature_transformation, lambd, regularization)  # compute test accuracy
+        accuracy_table[j*2, k], accuracy_table[j*2+1, k] = logistic_regression_train_val(num_iterations, feature_transformation, lambd, regularization)  # compute train accuracy
+        # accuracy_table[j*2+2, k] = logistic_regression_train_test(num_iterations, feature_transformation, lambd, regularization)  # compute test accuracy
 
 print(accuracy_table)
 
@@ -307,40 +359,3 @@ print(accuracy_table)
 accuracy_table_str = np.array([['{:.4f}'.format(val) for val in row] for row in accuracy_table])
 
 print(accuracy_table_str)
-
-
-# # Define the hyperparameters to iterate over
-# c_values = [0, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100, 1000]
-# feature_degrees = [1, 2, 3]
-# regularizations = ['l1', 'l2']
-# num_iterations = 500
-
-# c_values = [0]
-# feature_degrees = [1]
-# regularizations = ['l2']
-# num_iterations = 500
-# import numpy as np
-
-# # Define the hyperparameters
-# c_values = [0]
-# feature_degrees = [1]
-# regularizations = ['l2']
-# num_iterations = 500
-
-# # Initialize the accuracy table with zeros
-# accuracy_table = np.zeros((len(feature_degrees)*len(regularizations)*2, len(c_values)+1))
-
-# # Define the row label
-# row_labels = ['X: L{} {}'.format(reg, train_test) for reg in regularizations for train_test in ['train', 'test']]
-# row_labels += ['$X^{}$: L{} {}'.format(d, reg, train_test) for d in feature_degrees for reg in regularizations for train_test in ['train', 'test']]
-# accuracy_table[:, 0] = row_labels
-
-# # Compute accuracy using logistic_regression_train_val
-# for j, reg in enumerate(regularizations):
-#     for i, degree in enumerate(feature_degrees):
-#         train_acc, val_acc = logistic_regression_train_val(num_iterations, degree, c_values[0], reg)
-#         accuracy_table[i*4+j*2, 1] = train_acc
-#         accuracy_table[i*4+j*2+1, 1] = val_acc
-
-# # Print the accuracy table
-# print(accuracy_table)
