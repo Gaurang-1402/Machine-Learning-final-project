@@ -77,7 +77,7 @@ should provide the precision and recall
 what conclusions you can draw from your work. You should appeal to the concepts
 discussed in class: overfitting, underfitting, variance, bias, etc.
 
-
+---
 You and your partner will give a six-minute presentation to the class. The final project
 presentations will be held during the last 1 or 2 class periods and during the final exam
 period for this class. You will be assigned a day for your presentation. If we run out of
