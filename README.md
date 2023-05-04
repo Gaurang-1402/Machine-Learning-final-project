@@ -3,7 +3,6 @@
 ## CS-UY 4563 - Introduction to Machine Learning
 
 Spring 2023
-Due Date: To Be Announced∗
 
 For your final project, you will work with one other student (from either class) to apply
 the machine learning algorithms and techniques you learned in class to a task/problem of
